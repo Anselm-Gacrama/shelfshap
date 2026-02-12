@@ -60,10 +60,12 @@ class _ShelfHomeState extends State<ShelfHome> {
   // =========================
   // Variables & Data Types
   // =========================
-  int totalShelves = 0;      // int
+  int totalShelves = 0;
+  int totalItems = 0;// int
   double averageItems = 0.0; // double
   bool hasManyShelves = false; // bool
   String shelfStatus = "";   // String
+  String itemSummary = "";
 
   // =========================
   // Calculate Stats
@@ -71,35 +73,41 @@ class _ShelfHomeState extends State<ShelfHome> {
   void _calculateStats() {
     totalShelves = _shelves.length;
 
-    int totalItems = 0;
+    totalItems = 0;
+    itemSummary = "";
+
     for (int i = 0; i < _shelves.length; i++) {
-      totalItems += _shelves[i].items.length;
+      int itemCount = _shelves[i].items.length;
+      totalItems += itemCount;
+
+      itemSummary += "${_shelves[i].name}: $itemCount items\n";
     }
 
     // Arithmetic operations
     averageItems = totalShelves > 0 ? totalItems / totalShelves : 0;
-    int doubledShelves = totalShelves * 2;
 
-    // Logical operator
-    hasManyShelves = totalShelves > 2 && averageItems > 1;
+    // FIXED LOGIC (only depends on shelf count now)
+    hasManyShelves = totalShelves >= 5;
 
-    // Switch statement
-    switch (totalShelves) {
-      case 0:
-        shelfStatus = "No shelves available";
-        break;
-      case 1:
-        shelfStatus = "Only one shelf";
-        break;
-      default:
-        shelfStatus = "You have $totalShelves shelves";
+    // Collective status using shelves + items
+    int collectiveTotal = totalShelves + totalItems;
+
+    if (collectiveTotal == 0) {
+      shelfStatus = "No shelves and no items available";
+    } else if (collectiveTotal <= 5) {
+      shelfStatus = "Small storage collection";
+    } else if (collectiveTotal <= 15) {
+      shelfStatus = "Growing storage collection";
+    } else {
+      shelfStatus = "Large storage collection";
     }
 
-    // Debug prints
+    // Debug
     print("Total Shelves: $totalShelves");
+    print("Total Items: $totalItems");
     print("Average Items: $averageItems");
-    print("Doubled Shelves: $doubledShelves");
     print("Has Many Shelves: $hasManyShelves");
+    print("Collective Total: $collectiveTotal");
   }
 
   @override
@@ -289,7 +297,7 @@ class _ShelfHomeState extends State<ShelfHome> {
 
               // Items
               Wrap(
-                spacing: 8,
+                spacing: 14,
                 runSpacing: 8,
                 children: shelf.items.asMap().entries.map((entry) {
                   final iIndex = entry.key;
@@ -369,12 +377,20 @@ class _ShelfHomeState extends State<ShelfHome> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Total Shelves: $totalShelves"),
+                Text("Total Items: $totalItems"),
                 Text("Average Items per Shelf: ${averageItems.toStringAsFixed(2)}"),
-                Text("Has Many Shelves: $hasManyShelves"),
-                Text("Status: $shelfStatus"),
+                Text("Has Many Shelves (>=5): $hasManyShelves"),
+                const SizedBox(height: 6),
+                const Text("Items Per Shelf:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(itemSummary),
+                const SizedBox(height: 6),
+                Text("Overall Status: $shelfStatus",
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
+
           const Divider(),
           Expanded(
             child: ListView.builder(
