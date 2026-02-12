@@ -289,7 +289,7 @@ class _ShelfHomeState extends State<ShelfHome> {
 
               // Items
               Wrap(
-                spacing: 8,
+                spacing: 14,
                 runSpacing: 8,
                 children: shelf.items.asMap().entries.map((entry) {
                   final iIndex = entry.key;
